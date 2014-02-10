@@ -38,7 +38,9 @@ fiber_base::trampoline_( coro::coroutine< void >::push_type & c)
 
     callee_ = & c;
     set_running();
+        fprintf(stderr, "XXX 1\n");
     suspend();
+        fprintf(stderr, "XXX 2\n");
 
     try
     {
@@ -76,7 +78,9 @@ fiber_base::resume()
     BOOST_ASSERT( caller_);
     BOOST_ASSERT( is_running() ); // set by the scheduler-algorithm
 
+        fprintf(stderr, "YYY 1\n");
     caller_();
+        fprintf(stderr, "YYY 2\n");
 }
 
 void

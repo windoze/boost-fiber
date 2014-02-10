@@ -7,6 +7,7 @@
 #ifndef BOOST_FIBERS_DETAIL_FIBER_BASE_H
 #define BOOST_FIBERS_DETAIL_FIBER_BASE_H
 
+#include <cstdio>
 #include <cstddef>
 #include <map>
 #include <vector>
@@ -86,12 +87,15 @@ private:
 
     void trampoline_( coro::coroutine< void >::push_type & c);
 
+    fiber_base( fiber_base const&);
+    fiber_base & operator=( fiber_base const&);
+
 protected:
     atomic< state_t >                       state_;
     atomic< int >                           flags_;
     atomic< int >                           priority_;
-    coro::coroutine< void >::pull_type      caller_;
     coro::coroutine< void >::push_type  *   callee_;
+    coro::coroutine< void >::pull_type      caller_;
     exception_ptr                           except_;
     spinlock                                splk_;
     std::vector< ptr_t >                    waiting_;
@@ -101,34 +105,26 @@ protected:
     virtual void run() = 0;
 
 public:
-    template< typename StackAllocator, typename Allocator >
-    fiber_base( attributes const& attrs, StackAllocator const& stack_alloc, Allocator const& alloc) :
+    template< typename StackAllocator >
+    fiber_base( attributes const& attrs, StackAllocator const& stack_alloc) :
         fss_data_(),
         state_( READY),
         flags_( 0),
         priority_( 0),
-        caller_(),
         callee_( 0),
+        caller_(
+            coro::coroutine< void >::pull_type(
+                boost::bind( & fiber_base::trampoline_, this, _1),
+                attrs,
+                stack_alloc) ),
         except_(),
         waiting_()
     {
-        BOOST_ASSERT( ! caller_);
-        BOOST_ASSERT( ! callee_);
-
-        typedef typename Allocator::template rebind<
-            coro::coroutine< void >::pull_type
-        >::other    allocator_t;
-
-        caller_ = coro::coroutine< void >::pull_type(
-                boost::bind( & fiber_base::trampoline_, this, _1),
-                attrs,
-                stack_alloc,
-                allocator_t( alloc) );
-
         set_ready(); // fiber is setup and now ready to run
 
         BOOST_ASSERT( caller_);
         BOOST_ASSERT( callee_);
+        BOOST_ASSERT( ( * callee_) );
     }
 
     virtual ~fiber_base();

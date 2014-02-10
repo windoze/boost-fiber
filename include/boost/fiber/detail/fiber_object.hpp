@@ -60,7 +60,7 @@ public:
     fiber_object( Fn && fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        base_type( attr, stack_alloc),
         fn_( forward< Fn >( fn) ),
         alloc_( alloc)
     {}
@@ -69,7 +69,7 @@ public:
     fiber_object( Fn fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        base_type( attr, stack_alloc),
         fn_( fn),
         alloc_( alloc)
     {}
@@ -78,7 +78,7 @@ public:
     fiber_object( BOOST_RV_REF( Fn) fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        base_type( attr, stack_alloc),
         fn_( fn),
         alloc_( alloc)
     {}
