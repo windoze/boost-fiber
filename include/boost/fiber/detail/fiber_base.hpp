@@ -84,7 +84,7 @@ private:
     // set terminate is only set inside fiber_base::trampoline_()
     void set_terminated_() BOOST_NOEXCEPT;
 
-    void trampoline_( coro::coroutine< void >::push_type & c);
+    void trampoline_( coro::symmetric_coroutine< void >::yield_type &);
 
     fiber_base( fiber_base const&);
     fiber_base & operator=( fiber_base const&);
@@ -93,8 +93,8 @@ protected:
     atomic< state_t >                                   state_;
     atomic< int >                                       flags_;
     atomic< int >                                       priority_;
-    coro::asymmetric_coroutine< void >::push_type   *   callee_;
-    coro::asymmetric_coroutine< void >::pull_type       caller_;
+    coro::symmetric_coroutine< void >::yield_type   *   yield_;
+    coro::symmetric_coroutine< void >::call_type        call_;
     exception_ptr                                       except_;
     spinlock                                            splk_;
     std::vector< ptr_t >                                waiting_;
@@ -110,19 +110,22 @@ public:
         state_( READY),
         flags_( 0),
         priority_( 0),
-        callee_( 0),
-        caller_(
+        yield_( 0),
+        call_(
             boost::bind( & fiber_base::trampoline_, this, _1),
             attrs,
             stack_alloc),
         except_(),
         waiting_()
     {
+        // jump to fiber trampoline
+        call_();
+
         set_ready(); // fiber is setup and now ready to run
 
-        BOOST_ASSERT( caller_);
-        BOOST_ASSERT( callee_);
-        BOOST_ASSERT( ( * callee_) );
+        BOOST_ASSERT( call_);
+        BOOST_ASSERT( yield_);
+        BOOST_ASSERT( ( * yield_) );
     }
 
     virtual ~fiber_base();
