@@ -112,10 +112,9 @@ public:
         priority_( 0),
         callee_( 0),
         caller_(
-            coro::coroutine< void >::pull_type(
-                boost::bind( & fiber_base::trampoline_, this, _1),
-                attrs,
-                stack_alloc) ),
+            boost::bind( & fiber_base::trampoline_, this, _1),
+            attrs,
+            stack_alloc),
         except_(),
         waiting_()
     {
