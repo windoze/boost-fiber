@@ -90,14 +90,14 @@ private:
     fiber_base & operator=( fiber_base const&);
 
 protected:
-    atomic< state_t >                       state_;
-    atomic< int >                           flags_;
-    atomic< int >                           priority_;
-    coro::coroutine< void >::push_type  *   callee_;
-    coro::coroutine< void >::pull_type      caller_;
-    exception_ptr                           except_;
-    spinlock                                splk_;
-    std::vector< ptr_t >                    waiting_;
+    atomic< state_t >                                   state_;
+    atomic< int >                                       flags_;
+    atomic< int >                                       priority_;
+    coro::asymmetric_coroutine< void >::push_type   *   callee_;
+    coro::asymmetric_coroutine< void >::pull_type       caller_;
+    exception_ptr                                       except_;
+    spinlock                                            splk_;
+    std::vector< ptr_t >                                waiting_;
 
     void release();
 
