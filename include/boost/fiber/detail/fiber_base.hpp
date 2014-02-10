@@ -7,7 +7,6 @@
 #ifndef BOOST_FIBERS_DETAIL_FIBER_BASE_H
 #define BOOST_FIBERS_DETAIL_FIBER_BASE_H
 
-#include <cstdio>
 #include <cstddef>
 #include <map>
 #include <vector>
